@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use("/list-action", routers.listAction);
 app.use("/hello-action", routers.helloAction);
 app.use("/button-action", routers.buttonAction);
 app.use("/popup-action", routers.popupAction);
