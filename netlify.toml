@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"  # Replace with your build command
+  publish = "dist"           # Replace with your build output directory
+  functions = "functions"
+[functions]
+  external_node_modules = ["express"]
+  node_bundler = "esbuild"
+[[redirects]]
+  force = true
+  from = "/api/*"
+  status = 200
+  to = "/.netlify/functions/api/:splat"
