@@ -1,70 +1,50 @@
 import express from "express";
-import {
-  APIInteraction,
-  InteractionType,
-  MessageFlags,
-} from "discord-api-types/v10";
 import { SignatureVerifier } from "../helpers";
 import {
-  APIInteractionResponse,
+  APIChatInputApplicationCommandInteraction,
   ApplicationCommandType,
   DiscordActionMetadata,
+  DiscordActionRequest,
+  DiscordActionResponse,
   InteractionResponseType,
+  InteractionType,
+  MessageFlags,
 } from "@collabland/discord";
 import { MiniAppManifest } from "@collabland/models";
+import User from "../models/User";
 
 const router = express.Router();
 
-function handle(interaction: APIInteraction) {
-  switch (interaction.type) {
-    case InteractionType.ApplicationCommand: {
-      return handleApplicationCommand();
-    }
-    case InteractionType.MessageComponent: {
-      return handleMessageComponent();
-    }
+async function handle(
+  interaction: DiscordActionRequest<APIChatInputApplicationCommandInteraction>
+): Promise<DiscordActionResponse | null> {
+
+  const discordId = interaction?.member?.user?.id;
+  const user = await User.findOne({ discordId });
+
+  if (!user) {
+  console.log("user not found")
+  return null
   }
-}
 
-function handleMessageComponent(): APIInteractionResponse {
+  await User.deleteOne({ discordId });
+
   return {
     type: InteractionResponseType.ChannelMessageWithSource,
     data: {
-      content: "You just clicked Test Button.",
-    },
-  };
-}
-
-function handleApplicationCommand(): APIInteractionResponse {
-  return {
-    type: InteractionResponseType.ChannelMessageWithSource,
-    data: {
+      content: "you have successfully logged out! To access your NFT emojis, you have to go through /connect-wallet again",
       flags: MessageFlags.Ephemeral,
-      components: [
-        {
-          type: 1,
-          components: [
-            {
-              style: 1,
-              label: `Test`,
-              custom_id: `test-button`,
-              disabled: false,
-              type: 2,
-            },
-          ],
-        },
-      ],
     },
   };
 }
 
 router.get("/metadata", function (req, res) {
   const manifest = new MiniAppManifest({
-    appId: "button-action",
+    appId: "logout-action",
     developer: "collab.land",
-    name: "ButtonAction",
+    name: "LogoutAction",
     platforms: ["discord"],
-    shortName: "button-action",
+    shortName: "logout-action",
     version: { name: "0.0.1" },
     website: "https://collab.land",
     description: "An example Collab.Land action",
@@ -80,13 +60,9 @@ router.get("/metadata", function (req, res) {
      */
     supportedInteractions: [
       {
-        // Handle `/button-action` slash command
+        // Handle `/logout-action` slash command
         type: InteractionType.ApplicationCommand,
-        names: ["button-action"],
-      },
-      {
-        type: InteractionType.MessageComponent,
-        ids: ["test-button"],
+        names: ["logout-action"],
       },
     ],
     /**
@@ -94,15 +70,15 @@ router.get("/metadata", function (req, res) {
      * Discord guild upon installation.
      */
     applicationCommands: [
-      // `/button-action <your-name>` slash command
+      // `/logout-action <your-name>` slash command
       {
         metadata: {
-          name: "ButtonAction",
-          shortName: "button-action",
+          name: "LogoutAction",
+          shortName: "logout-action",
         },
-        name: "button-action",
+        name: "logout-action",
         type: ApplicationCommandType.ChatInput,
-        description: "/button-action",
+        description: "/logout-action",
         options: [],
       },
     ],

@@ -1,6 +1,6 @@
 import { getFetch, handleFetchResponse } from "@collabland/common";
 import {
-  APIChatInputApplicationCommandInteraction,
+  APIInteraction,
   APIMessage,
   DiscordActionRequest,
   RESTPatchAPIWebhookWithTokenMessageJSONBody,
@@ -10,8 +10,8 @@ import {
 const fetch = getFetch();
 
 export class FollowUp {
-  async followupMessage(
-    request: DiscordActionRequest<APIChatInputApplicationCommandInteraction>,
+  async followupMessage<T extends APIInteraction>(
+    request: DiscordActionRequest<T>,
     message: RESTPostAPIWebhookWithTokenJSONBody
   ) {
     const callback = request.actionContext?.callbackUrl;
@@ -24,8 +24,8 @@ export class FollowUp {
     }
   }
 
-  async editMessage(
-    request: DiscordActionRequest<APIChatInputApplicationCommandInteraction>,
+  async editMessage<T extends APIInteraction>(
+    request: DiscordActionRequest<T>,
     message: RESTPatchAPIWebhookWithTokenMessageJSONBody,
     messageId = "@original"
   ) {
@@ -42,8 +42,8 @@ export class FollowUp {
     }
   }
 
-  async deleteMessage(
-    request: DiscordActionRequest<APIChatInputApplicationCommandInteraction>,
+  async deleteMessage<T extends APIInteraction>(
+    request: DiscordActionRequest<T>,
     messageId = "@original"
   ) {
     const callback = request.actionContext?.callbackUrl;

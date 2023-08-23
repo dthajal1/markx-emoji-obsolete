@@ -1,6 +1,6 @@
 import express from "express";
 import { APIInteraction, InteractionType } from "discord-api-types/v10";
-import { SignatureVerifier } from "../helpers";
+import { SignatureVerifier } from "../../helpers";
 import {
   APIInteractionResponse,
   APIModalSubmitInteraction,

@@ -1,5 +1,5 @@
 import express from "express";
-import { FollowUp, SignatureVerifier } from "../helpers";
+import { FollowUp, SignatureVerifier } from "../../helpers";
 import { sleep } from "@collabland/common";
 import {
   APIChatInputApplicationCommandInteraction,
@@ -24,11 +24,13 @@ async function handle(
   interaction: DiscordActionRequest<APIChatInputApplicationCommandInteraction>
 ): Promise<DiscordActionResponse> {
   /**
-   * Get user's name
+   * Get the value of `your-name` argument for `/hello-action`
    */
-  const userName = interaction.user?.username ?? "World";
+  const yourName = getCommandOptionValue(interaction, "your-name");
 
-  const message = `Hello, ${userName}! Here are the lists of our NFTs that you hold:\n1. NFT 1\n2. NFT 2`;
+  const message = `Hello, ${
+    yourName ?? interaction.user?.username ?? "World"
+  }!`;
   /**
    * Build a simple Discord message private to the user
    */
@@ -42,13 +44,13 @@ async function handle(
   /**
    * Allow advanced followup messages
    */
-//   followup(interaction, message).catch((err) => {
-//     console.error(
-//       "Fail to send followup message to interaction %s: %O",
-//       interaction.id,
-//       err
-//     );
-//   });
+  followup(interaction, message).catch((err) => {
+    console.error(
+      "Fail to send followup message to interaction %s: %O",
+      interaction.id,
+      err
+    );
+  });
   // Return the 1st response to Discord
   return response;
 }
@@ -62,31 +64,32 @@ async function followup(
   if (callback != null) {
     const followupMsg: RESTPostAPIWebhookWithTokenJSONBody = {
       content: `Follow-up: **${message}**`,
-      flags: MessageFlags.Ephemeral,
+      // flags: MessageFlags.Ephemeral,
     };
     await sleep(1000);
-    let msg = await follow.followupMessage(request, followupMsg);
-    await sleep(1000);
+    await follow.followupMessage(request, followupMsg);
+    // let msg = await follow.followupMessage(request, followupMsg);
+    // await sleep(1000);
     // 5 seconds count down
-    for (let i = 5; i > 0; i--) {
-      const updated: RESTPatchAPIWebhookWithTokenMessageJSONBody = {
-        content: `[${i}s]: **${message}**`,
-      };
-      msg = await follow.editMessage(request, updated, msg?.id);
-      await sleep(1000);
-    }
+    // for (let i = 5; i > 0; i--) {
+    //   const updated: RESTPatchAPIWebhookWithTokenMessageJSONBody = {
+    //     content: `[${i}s]: **${message}**`,
+    //   };
+    //   msg = await follow.editMessage(request, updated, msg?.id);
+    //   await sleep(1000);
+    // }
     // Delete the follow-up message
-    await follow.deleteMessage(request, msg?.id);
+    // await follow.deleteMessage(request, msg?.id);
   }
 }
 
 router.get("/metadata", function (req, res) {
   const manifest = new MiniAppManifest({
-    appId: "list-action",
+    appId: "hello-action",
     developer: "collab.land",
-    name: "ListAction",
+    name: "HelloAction",
     platforms: ["discord"],
-    shortName: "list-action",
+    shortName: "hello-action",
     version: { name: "0.0.1" },
     website: "https://collab.land",
     description: "An example Collab.Land action",
@@ -102,9 +105,9 @@ router.get("/metadata", function (req, res) {
      */
     supportedInteractions: [
       {
-        // Handle `/list-action` slash command
+        // Handle `/hello-action` slash command
         type: InteractionType.ApplicationCommand,
-        names: ["list-action"],
+        names: ["hello-action"],
       },
     ],
     /**
@@ -112,16 +115,23 @@ router.get("/metadata", function (req, res) {
      * Discord guild upon installation.
      */
     applicationCommands: [
-      // `/list-action` slash command
+      // `/hello-action <your-name>` slash command
       {
         metadata: {
-          name: "ListAction",
-          shortName: "list-action",
+          name: "HelloAction",
+          shortName: "hello-action",
         },
-        name: "list-action",
+        name: "hello-action",
         type: ApplicationCommandType.ChatInput,
-        description: "/list-action",
-        options: [],
+        description: "/hello-action",
+        options: [
+          {
+            name: "your-name",
+            description: "Name of person we're greeting",
+            type: ApplicationCommandOptionType.String,
+            required: true,
+          },
+        ],
       },
     ],
   };
