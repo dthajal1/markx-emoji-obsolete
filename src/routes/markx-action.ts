@@ -1,5 +1,4 @@
 import express from "express";
-import { SignatureVerifier } from "../helpers";
 import {
   DiscordActionMetadata,
 } from "@collabland/discord";
