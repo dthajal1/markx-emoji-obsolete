@@ -1,4 +1,5 @@
 import express from "express";
+import { SignatureVerifier } from "../helpers";
 import {
   APIInteraction,
   APIInteractionResponse,
@@ -11,10 +12,39 @@ import {
   APIMessageSelectMenuInteractionData,
   ApplicationCommandOptionType,
   APIChatInputApplicationCommandInteraction,
+  getSubCommandOption,
+  getSubCommandOptionValue,
 } from "@collabland/discord";
 import { MiniAppManifest } from "@collabland/models";
+import { handleConnectWallet } from "./connect-wallet";
+import { handleViewEmojis } from "./view-emojis";
+import { handleSendEmoji } from "./send-emoji";
 
 const router = express.Router();
+
+async function handle(interaction: APIInteraction) {
+  const chatInputInteraction = interaction as APIChatInputApplicationCommandInteraction;
+
+  const option = getSubCommandOption(chatInputInteraction);
+
+  console.log(`handling interaction (option.name=${option?.name})`);
+
+  switch (option?.name) {
+    case 'connect-wallet': {
+      return handleConnectWallet(interaction);
+    }
+    case 'view-emojis': {
+      return handleViewEmojis(interaction);
+    }
+    case 'send-emojis': {
+      const text = getSubCommandOptionValue(chatInputInteraction, 'send-emojis', 'text');
+      return handleSendEmoji(interaction, text)
+    }
+    default: {
+      throw new Error('Invalid subcommand');
+    }
+  }
+}
 
 router.get("/metadata", function (req, res) {
     const manifest = new MiniAppManifest({
@@ -41,7 +71,7 @@ router.get("/metadata", function (req, res) {
         {
           // Handle `/send-emoji` slash command
           type: InteractionType.ApplicationCommand,
-          names: ["markx-emoji"],
+          names: ["markx"],
         },
       ],
     //   /**
@@ -49,28 +79,60 @@ router.get("/metadata", function (req, res) {
     //    * Discord guild upon installation.
     //    */
       applicationCommands: [
-        // `/send-emoji <your-name>` slash command
+        // `/markx slash command
         {
           metadata: {
             name: "MarkX Emoji",
-            shortName: "markx-emoji",
+            shortName: "markx",
           },
-          name: "markx-emoji",
+          name: "markx",
           type: ApplicationCommandType.ChatInput,
-          description: "Markx Emoji Action",
+          description: "Use Emoji NFTs as stickers",
           options: [
-            // {
-            //   name: "text",
-            //   description: "The text to display along with the expression",
-            //   type: ApplicationCommandOptionType.String,
-            //   required: false,
-            // },
+            // `/markx connect-wallet <url>` slash command
+            {
+              type: ApplicationCommandOptionType.Subcommand,
+              name: 'connect-wallet',
+              description:
+                "Connect your wallet to view emoji NFTs you own",
+              options: [],
+            },
+            // `/markx view-emojis <url>` slash command
+            {
+              type: ApplicationCommandOptionType.Subcommand,
+              name: 'view-emojis',
+              description:
+                "View all the emoji NFTs you own",
+              options: [],
+            },
+            // `/markx send-emoji <url>` slash command
+            {
+              type: ApplicationCommandOptionType.Subcommand,
+              name: 'send-emoji',
+              description:
+                "Send a specific sticker from your emoji NFTs collection",
+              options: [
+                {
+                  type: ApplicationCommandOptionType.String,
+                  name: "text",
+                  description: "The text to display along with the expression",
+                  required: false,
+                },
+              ],
+            },
           ],
         },
       ],
     };
     res.send(metadata);
-  });
+});
+
+router.post("/interactions", async function (req, res) {
+  const verifier = new SignatureVerifier();
+  verifier.verify(req, res);
+  const result = await handle(req.body);
+  res.send(result);
+});
 
 
 export default router;

@@ -17,7 +17,7 @@ import { storeData } from "../helpers/cache-manager";
 
 const router = express.Router();
 
-function handle(interaction: APIInteraction) {
+export function handleConnectWallet(interaction: APIInteraction) {
   switch (interaction.type) {
     case InteractionType.ApplicationCommand: {
       return handleApplicationCommand();
@@ -139,7 +139,7 @@ router.get("/metadata", function (req, res) {
 router.post("/interactions", async function (req, res) {
   const verifier = new SignatureVerifier();
   verifier.verify(req, res);
-  const result = await handle(req.body);
+  const result = await handleConnectWallet(req.body);
   res.send(result);
 });
 

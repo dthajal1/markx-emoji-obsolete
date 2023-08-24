@@ -25,8 +25,8 @@ const s3 = new AWS.S3();
 
 const router = express.Router();
 
-async function handle(interaction: APIInteraction) {
-  const text = getCommandOptionValue(interaction as APIChatInputApplicationCommandInteraction, "text");
+export async function handleSendEmoji(interaction: APIInteraction, text?: string) {
+  // const text = getCommandOptionValue(interaction as APIChatInputApplicationCommandInteraction, "text");
   // console.log(text);
   const id = interaction?.member?.user?.id;
   if (id && text) {
@@ -213,7 +213,8 @@ router.get("/metadata", function (req, res) {
 router.post("/interactions", async function (req, res) {
   const verifier = new SignatureVerifier();
   verifier.verify(req, res);
-  const result = await handle(req.body);
+  const text = getCommandOptionValue(req.body as APIChatInputApplicationCommandInteraction, "text");
+  const result = await handleSendEmoji(req.body, text);
   res.send(result);
 });
 

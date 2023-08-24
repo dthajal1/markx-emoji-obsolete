@@ -16,7 +16,7 @@ import { Product } from "./helpers/redirect";
 
 const router = express.Router();
 
-async function handle(interaction: APIInteraction) {
+export async function handleViewEmojis(interaction: APIInteraction) {
   const user = await User.findOne({ discordId: interaction?.member?.user?.id }).lean();
   if (!user) {
     console.log("user not found");
@@ -147,7 +147,7 @@ router.get("/metadata", function (req, res) {
 router.post("/interactions", async function (req, res) {
   const verifier = new SignatureVerifier();
   verifier.verify(req, res);
-  const result = await handle(req.body);
+  const result = await handleViewEmojis(req.body);
   res.send(result);
 });
 
