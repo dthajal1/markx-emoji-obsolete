@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx tsc && PORT=4000 node dist/bin/www",
-    "build": "npx tsc",
+    "build": "npm install typescript &&  tsc",
     "start": "node dist/bin/www",
     "eslint:check": "npx eslint .",
     "prettier:fix": "npx prettier --write .",
