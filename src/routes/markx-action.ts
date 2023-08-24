@@ -23,6 +23,23 @@ import { handleSendEmoji } from "./send-emoji";
 const router = express.Router();
 
 async function handle(interaction: APIInteraction) {
+  if (interaction.type == InteractionType.MessageComponent) {
+    switch (interaction.data.custom_id) {
+      case 'connect-wallet-btn': {
+        return handleConnectWallet(interaction);
+      }
+      case 'emoji_select_1': {
+        return handleViewEmojis(interaction);
+      }
+      case 'emoji_expr_select_1': {
+        return handleSendEmoji(interaction);
+      }
+      default: {
+        return null
+      }
+    }
+  }
+
   const chatInputInteraction = interaction as APIChatInputApplicationCommandInteraction;
 
   const option = getSubCommandOption(chatInputInteraction);
@@ -36,12 +53,14 @@ async function handle(interaction: APIInteraction) {
     case 'view-emojis': {
       return handleViewEmojis(interaction);
     }
-    case 'send-emojis': {
-      const text = getSubCommandOptionValue(chatInputInteraction, 'send-emojis', 'text');
+    case 'send-emoji': {
+      const text = getSubCommandOptionValue(chatInputInteraction, 'send-emoji', 'text');
       return handleSendEmoji(interaction, text)
     }
     default: {
-      throw new Error('Invalid subcommand');
+      console.log("Invalid subcommand");
+      return null
+      // throw new Error('Invalid subcommand');
     }
   }
 }
@@ -69,10 +88,14 @@ router.get("/metadata", function (req, res) {
        */
       supportedInteractions: [
         {
-          // Handle `/send-emoji` slash command
+          // Handle `/markx-action` slash command
           type: InteractionType.ApplicationCommand,
           names: ["markx"],
         },
+        {
+          type: InteractionType.MessageComponent,
+          ids: ["connect-wallet-btn", "emoji_select_1", "emoji_expr_select_1"],
+        }
       ],
     //   /**
     //    * Supported Discord application commands. They will be registered to a
