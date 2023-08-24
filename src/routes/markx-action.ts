@@ -1,17 +1,7 @@
 import express from "express";
 import { SignatureVerifier } from "../helpers";
 import {
-  APIInteraction,
-  APIInteractionResponse,
-  ApplicationCommandType,
   DiscordActionMetadata,
-  getCommandOptionValue,
-  InteractionResponseType,
-  InteractionType,
-  MessageFlags,
-  APIMessageSelectMenuInteractionData,
-  ApplicationCommandOptionType,
-  APIChatInputApplicationCommandInteraction,
 } from "@collabland/discord";
 import { MiniAppManifest } from "@collabland/models";
 
