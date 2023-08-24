@@ -117,7 +117,7 @@ router.get("/metadata", function (req, res) {
               type: ApplicationCommandOptionType.Subcommand,
               name: 'connect-wallet',
               description:
-                "Connect your wallet to view emoji NFTs you own",
+                "Connect your wallet to access emoji NFTs you own",
               options: [],
             },
             // `/markx view-emojis <url>` slash command
