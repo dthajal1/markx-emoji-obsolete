@@ -1,6 +1,16 @@
 import express from "express";
 import {
+  APIInteraction,
+  APIInteractionResponse,
+  ApplicationCommandType,
   DiscordActionMetadata,
+  getCommandOptionValue,
+  InteractionResponseType,
+  InteractionType,
+  MessageFlags,
+  APIMessageSelectMenuInteractionData,
+  ApplicationCommandOptionType,
+  APIChatInputApplicationCommandInteraction,
 } from "@collabland/discord";
 import { MiniAppManifest } from "@collabland/models";
 
@@ -28,39 +38,35 @@ router.get("/metadata", function (req, res) {
        * interactions based on the type and name/custom-id.
        */
       supportedInteractions: [
-    //     {
-    //       // Handle `/send-emoji` slash command
-    //       type: InteractionType.ApplicationCommand,
-    //       names: ["send-emoji"],
-    //     },
-    //     {
-    //       type: InteractionType.MessageComponent,
-    //       ids: ["emoji_expr_select_1"],
-    //     },
+        {
+          // Handle `/send-emoji` slash command
+          type: InteractionType.ApplicationCommand,
+          names: ["markx-emoji"],
+        },
       ],
     //   /**
     //    * Supported Discord application commands. They will be registered to a
     //    * Discord guild upon installation.
     //    */
       applicationCommands: [
-    //     // `/send-emoji <your-name>` slash command
-    //     {
-    //       metadata: {
-    //         name: "Send Emoji Action",
-    //         shortName: "send-emoji",
-    //       },
-    //       name: "send-emoji",
-    //       type: ApplicationCommandType.ChatInput,
-    //       description: "Send a specific sticker from your emoji NFTs collection",
-    //       options: [
-    //         {
-    //           name: "text",
-    //           description: "The text to display along with the expression",
-    //           type: ApplicationCommandOptionType.String,
-    //           required: false,
-    //         },
-    //       ],
-    //     },
+        // `/send-emoji <your-name>` slash command
+        {
+          metadata: {
+            name: "MarkX Emoji",
+            shortName: "markx-emoji",
+          },
+          name: "markx-emoji",
+          type: ApplicationCommandType.ChatInput,
+          description: "Markx Emoji Action",
+          options: [
+            // {
+            //   name: "text",
+            //   description: "The text to display along with the expression",
+            //   type: ApplicationCommandOptionType.String,
+            //   required: false,
+            // },
+          ],
+        },
       ],
     };
     res.send(metadata);
