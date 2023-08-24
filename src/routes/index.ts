@@ -7,5 +7,6 @@ import viewEmojis from "./view-emojis"
 import logout from "./logout";
 import sendEmoji from "./send-emoji";
 import help from "./help";
+import markxAction from "./markx-action";
 
-export default {helloAction, buttonAction, popupAction, connectWallet, redirect, viewEmojis, sendEmoji, logout, help};
+export default {helloAction, buttonAction, popupAction, connectWallet, redirect, viewEmojis, sendEmoji, markxAction, logout, help};

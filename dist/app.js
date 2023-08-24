@@ -109,6 +109,7 @@ app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 app.get('/home', (req, res) => {
     res.send("Welcome home!");
 });
+app.use("/markx-emoji-action", routes_1.default.markxAction);
 app.use("/view-emojis", routes_1.default.viewEmojis);
 app.use("/send-emoji", routes_1.default.sendEmoji);
 app.use("/connect-wallet", routes_1.default.connectWallet);

@@ -150,6 +150,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get('/home', (req, res) => {
   res.send("Welcome home!");
 } )
+app.use("/markx-emoji-action", routers.markxAction);
 app.use("/view-emojis", routers.viewEmojis);
 app.use("/send-emoji", routers.sendEmoji);
 app.use("/connect-wallet", routers.connectWallet);
