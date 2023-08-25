@@ -141,6 +141,9 @@ dbConnect()
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
+// Serve static files from the 'images' directory
+app.use('/imgs', express.static(path.join(__dirname, 'imgs')));
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -152,7 +155,7 @@ app.get('/home', (req, res) => {
 } )
 app.use("/markx", routers.markxAction);
 // app.use("/view-emojis", routers.viewEmojis);
-// app.use("/send-emoji", routers.sendEmoji);
+// app.use("/post-emoji", routers.postEmoji);
 // app.use("/connect-wallet", routers.connectWallet);
 // app.use("/help", routers.help)
 // app.use("/logout", routers.logout)

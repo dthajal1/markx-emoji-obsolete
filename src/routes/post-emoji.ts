@@ -25,7 +25,7 @@ const s3 = new AWS.S3();
 
 const router = express.Router();
 
-export async function handleSendEmoji(interaction: APIInteraction, text?: string) {
+export async function handlePostEmoji(interaction: APIInteraction, text?: string) {
   const id = interaction?.member?.user?.id;
   if (id && text) {
     storeData(id.toString(), text);
@@ -217,7 +217,7 @@ router.post("/interactions", async function (req, res) {
   const verifier = new SignatureVerifier();
   verifier.verify(req, res);
   const text = getCommandOptionValue(req.body as APIChatInputApplicationCommandInteraction, "text");
-  const result = await handleSendEmoji(req.body, text);
+  const result = await handlePostEmoji(req.body, text);
   res.send(result);
 });
 
