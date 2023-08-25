@@ -141,9 +141,6 @@ dbConnect()
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
-// Serve static files from the 'images' directory
-app.use('/imgs', express.static(path.join(__dirname, 'imgs')));
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

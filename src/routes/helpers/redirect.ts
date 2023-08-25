@@ -12,7 +12,9 @@ import {
 } from "@collabland/discord";
 import axios from "axios";
 import AWS from "aws-sdk"
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas, loadImage, registerFont, CanvasRenderingContext2D } from "canvas";
+import path from "path"
+// import { createCanvas, loadImage } from "canvas";
 import { retrieveData, removeData } from "../../helpers/cache-manager";
 import User from "../../models/User";
 import { fetchProductData, fetchProducts } from "../../api/products";
@@ -114,6 +116,14 @@ router.get("/oauth2/discord/redirect", async (req, res) => {
           )
 
           const result = response.data.roles;
+          const arr_expressions = [
+            ['proud', 'happy'],
+            ['happy', 'energetic', 'confused', ':P', 'wisdom', 'curious', ':P', 'confused', 'wisdom', 'energetic', 'happy', 'curious'],
+            ['cute', 'curious', 'satisfied', 'cry', 'angry', 'slay'],
+            ['heart', 'sleepy', 'lazy', 'shy', 'give', 'celebrate', 'rose', 'angry', 'idea', 'tired']
+          ]
+          let counter = 0;
+
           for (let i = 0; i < result.length; i++) {
             if (result[i].granted) {
               const product: Product = {
@@ -124,9 +134,35 @@ router.get("/oauth2/discord/redirect", async (req, res) => {
               }
               const productData = await fetchProductData(web3Provider, productNFTs[i].contractAddress); // is productNFTs[result[i].id.toInt()].contractAddress the same?
               const { uniqueImages, data } = productData;
+              const expressions = arr_expressions[counter]
+              counter += 1
               for (let j = 0; j < uniqueImages; j++) {
-                product.images.push(data[j].image.replace("ipfs://", gatewayUrl));
+                // product.images.push(data[j].image.replace("ipfs://", gatewayUrl));
+
+                const text = expressions[j];
+                const imageUrl = data[j].image.replace("ipfs://", gatewayUrl);
+                const canvas = await writeTxtOnImg(text, imageUrl);
+
+                // Convert canvas to a buffer
+                const buffer = canvas.toBuffer();
+
+                // Upload the merged image data to S3
+                const uploadParams = {
+                  Bucket: process.env.S3_BUCKET || "markx-bucket", // TODO: change this
+                  Key: `${product.name}-${j}.jpg`, // Change the key as needed
+                  Body: buffer,
+                  // ACL: "public-read", // Set ACL for public access if needed
+                  ContentType: "image/jpeg", // Adjust content type as needed
+                };
+                const uploadResult = await s3.upload(uploadParams).promise();
+
+                // Create the S3 URL for the merged image
+                const s3ImgUrl = uploadResult.Location;
+
+                product.images.push(s3ImgUrl)
               }
+
+              
 
               // merge 12 images into single image
               const canvasWidth = 800; // Adjust canvas dimensions as needed
@@ -230,6 +266,169 @@ async function followup(
     await follow.followupMessage(request, followupMsg);
     }
 }
+
+
+
+// Helper function
+async function writeTxtOnImg(text: string, imageUrl: string) {
+  // Load the Google Font
+  const fontPath = path.join(__dirname, '../../../public/fonts/Caprasimo-Regular.ttf');
+  registerFont(fontPath, { family: "Caprasimo" });
+
+  // Load the image using canvas
+  const image = await loadImage(imageUrl);
+
+  const canvas = createCanvas(image.width, image.height);
+  const ctx = canvas.getContext("2d");
+
+  // Draw the image onto the canvas
+  ctx.drawImage(image, 0, 0, image.width, image.height);
+
+  const fontSize = 70;
+  const fontWeight = "bold";
+  ctx.font = `${fontWeight} ${fontSize}px 'Caprasimo', cursive`;
+
+  // Get the color of the pixel at the center of the image
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const [r, g, b] = ctx.getImageData(centerX, centerY, 1, 1).data;
+
+  // Use the sampled color for the font
+  const fontColor = `rgb(${r}, ${g}, ${b})`;
+  ctx.fillStyle = fontColor;
+
+  // Horizontal alignment
+  ctx.textAlign = "center";
+
+  // Vertical alignment on the top with a margin
+  const textY = 0; // Adjust the margin as needed
+  ctx.textBaseline = "top";
+
+  // Set the text border style
+  ctx.strokeStyle = "white"; // Border color
+  ctx.lineWidth = 10; // Border thickness
+
+  // Draw the text with a border
+  const line = text; // Single line of text
+  const lineHeight = fontSize - 20;
+
+  // Introduce a random rotation angle (in radians)
+  const rotation = (Math.random() - 0.5) * Math.PI / 20; // Adjust the angle as needed
+
+  // Save the current canvas state
+  ctx.save();
+
+  // Translate to the position of the text and apply rotation
+  ctx.translate(canvas.width / 2, textY);
+  ctx.rotate(rotation);
+
+  // Draw the text at the calculated position with rotation
+  ctx.strokeText(line, 0, 0); // Draw the text
+  ctx.fillText(line, 0, 0);
+
+  // Restore the canvas state to undo the rotation
+  ctx.restore();
+
+  return canvas;
+}
+
+// // Helper functions
+// async function writeTxtOnImg(text: string, imageUrl: string) {
+//   // Load the Google Font
+//   const fontPath = path.join(__dirname, '../../../public/fonts/Caprasimo-Regular.ttf');
+//   registerFont(fontPath, { family: "Caprasimo" });
+
+//   // Load the image using canvas
+//   const image = await loadImage(imageUrl);
+
+//   const canvas = createCanvas(image.width, image.height);
+//   const ctx = canvas.getContext("2d");
+
+//   // Draw the image onto the canvas
+//   ctx.drawImage(image, 0, 0, image.width, image.height);
+
+//   const fontSize = 70;
+//   const fontWeight = "bold";
+//   ctx.font = `${fontWeight} ${fontSize}px 'Caprasimo', cursive`;
+
+//   // Get the color of the pixel at the center of the image
+//   const centerX = canvas.width / 2;
+//   const centerY = canvas.height / 2;
+//   const [r, g, b] = ctx.getImageData(centerX, centerY, 1, 1).data;
+
+//   // Use the sampled color for the font
+//   const fontColor = `rgb(${r}, ${g}, ${b})`;
+//   ctx.fillStyle = fontColor;
+
+//   // Horizontal alignment
+//   ctx.textAlign = "center";
+
+//   // Vertical alignment on the top with a margin
+//   // const textMargin = 20; // Adjust the margin as needed
+//   // const textY = textMargin + fontSize; // Add margin and font size
+//   const textY = 0; // Add margin and font size
+//   ctx.textBaseline = "top";
+
+//   // Draw the text with the desired alignments
+//   // ctx.fillStyle = "white";
+//   ctx.strokeStyle = "white"; // Border color
+//   ctx.lineWidth = 10; // Border thickness
+
+//   // Calculate the width of the text
+//   const textBoxWidth = canvas.width / 2;
+//   const textLines = wrapText(ctx, text, textBoxWidth); // Call the wrapText function
+
+//   // Calculate the vertical spacing between lines (negative line height)
+//   const lineHeight = fontSize - 20;
+
+//   // Draw the text lines with a border in the calculated text box
+//   for (let i = 0; i < textLines.length; i++) {
+//     const line = textLines[i];
+//     // Calculate the vertical position of the current line
+//     const lineY = textY + i * lineHeight;
+
+//     // Introduce a random rotation angle (in radians)
+//     const rotation = (Math.random() - 0.5) * Math.PI / 20; // Adjust the angle as needed
+    
+//     // Save the current canvas state
+//     ctx.save();
+
+//     // Translate to the position of the text and apply rotation
+//     ctx.translate(canvas.width / 2, lineY);
+//     ctx.rotate(rotation);
+
+//     // Draw the text at the calculated position with rotation
+//     ctx.strokeText(line, 0, 0); // Draw the text
+//     ctx.fillText(line, 0, 0);
+
+//     // Restore the canvas state to undo the rotation
+//     ctx.restore();
+//   }
+//   return canvas
+// }
+
+// function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+//   const words = text.split(" ");
+//   const lines = [];
+//   let currentLine = words[0];
+
+//   for (let i = 1; i < words.length; i++) {
+//     const word = words[i];
+//     const testLine = `${currentLine} ${word}`;
+//     const testWidth = ctx.measureText(testLine).width;
+
+//     if (testWidth <= maxWidth) {
+//       currentLine = testLine;
+//     } else {
+//       lines.push(currentLine);
+//       currentLine = word;
+//     }
+//   }
+
+//   lines.push(currentLine);
+//   return lines;
+// }
+
 
 
 export default router;

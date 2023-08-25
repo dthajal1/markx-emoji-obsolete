@@ -84,12 +84,12 @@ async function handle(interaction: APIInteraction) {
 }
 
 router.get("/metadata", function (req, res) {
-    const host = req.get('host'); // Get the host (e.g., localhost:3000)
-    const protocol = req.protocol; // Get the protocol (e.g., http or https)
+    // const host = req.get('host'); // Get the host (e.g., localhost:3000)
+    // const protocol = req.protocol; // Get the protocol (e.g., http or https)
 
-    // Construct the absolute URL for the image
-    const imageUrl = `${protocol}://${host}/imgs/MarkX_Logo.png`;
-    console.log("imageUrl: ", imageUrl)
+    // // Construct the absolute URL for the image
+    // const imageUrl = `${protocol}://${host}/imgs/MarkX_Logo.png`;
+    // console.log("imageUrl: ", imageUrl)
 
     const manifest = new MiniAppManifest({
       appId: "markx-emoji-action",
@@ -101,13 +101,13 @@ router.get("/metadata", function (req, res) {
       website: "https://www.markx.io",
       description: "[MarkX Emoji](https://www.markx.io/) gives users the ability to use their Emoji NFTs as stickers within the Discord servers. You can use your community brand or NFT IP to create emojis with the MarkX creator network and allow your community members to start communicating with it!\n\n**Get Free Custom Emojis for Your Community:**\n\n1. Follow Step 2 in Getting Started below: This step is required if you want the community to use your project emoji \n\n**To get started:**\n\n1. Install the MarkX Emoji mini-app from the [Collab.Land Marketplace](https://help.collab.land/marketplace/getting-started)\n\n2. [Create a Free Emoji](https://www.markx.io/create-emojis) collection for your IP (NFT or Brand) with the MarkX (Enter Promo Code: CollabLandFTW2023)\n\n3.  Buy/mint your community Emoji NFTs in the [MarkX marketplace (in testnet right now)](https://xyzport.com/browseProducts) using `/buy-emoji` command\n\n4. Give mini-app the permission to read wallets you have connected with [Collab.Land](http://Collab.Land) with `/connect-wallet` command\n\n5. Run `/view-emojis` command to view all the Emoji NFTs you own\n\n6. Share the Emoji NFT you own as stickers with others using `/post-emoji`\n\n",
       shortDescription: "MarkX Emoji gives users the ability to use their Emoji NFTs as stickers within the Discord servers.",
-      icons: [
-        {
-          label: 'App icon',
-          src: imageUrl,
-          sizes: '512x512'
-        }
-      ]
+      // icons: [
+      //   {
+      //     label: 'App icon',
+      //     src: MarkXLogo,
+      //     sizes: '512x512'
+      //   }
+      // ]
     });
     const metadata: DiscordActionMetadata = {
       /**
