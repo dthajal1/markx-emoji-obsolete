@@ -35,7 +35,13 @@ export async function handleViewEmojis(interaction: APIInteraction) {
       }
     }
   }
-  return null
+  return {
+    type: InteractionResponseType.ChannelMessageWithSource,
+    data: {
+      flags: MessageFlags.Ephemeral,
+      content: ``,
+    },
+  }
 }
 
 async function handleMessageComponent(interaction: APIInteraction, productsToDisplay: Product[]): Promise<APIInteractionResponse | null> {
@@ -155,7 +161,7 @@ function createEmbed(selectedProduct: Product) {
   return {
     title: selectedProduct.name,
     description: selectedProduct.description,
-    color: 0x00FFFF,
+    // color: 0x00FFFF,
     image: {
       url: selectedProduct.mergedImgUrl,
       height: 0,

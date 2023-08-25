@@ -16,6 +16,7 @@ import {
   getSubCommandOptionValue,
 } from "@collabland/discord";
 import { MiniAppManifest } from "@collabland/models";
+import { handleBuyEmoji } from "./buy-emoji";
 import { handleConnectWallet } from "./connect-wallet";
 import { handleViewEmojis } from "./view-emojis";
 import { handleSendEmoji } from "./send-emoji";
@@ -47,6 +48,9 @@ async function handle(interaction: APIInteraction) {
   console.log(`handling interaction (option.name=${option?.name})`);
 
   switch (option?.name) {
+    case 'buy-emoji': {
+      return handleBuyEmoji(interaction);
+    }
     case 'connect-wallet': {
       return handleConnectWallet(interaction);
     }
@@ -112,6 +116,14 @@ router.get("/metadata", function (req, res) {
           type: ApplicationCommandType.ChatInput,
           description: "Use Emoji NFTs as stickers",
           options: [
+            // `/markx buy-emoji <url>` slash command
+            {
+              type: ApplicationCommandOptionType.Subcommand,
+              name: 'buy-emoji',
+              description:
+                "Display link to buy/mint Emoji NFTs in the MarkX marketplace",
+              options: [],
+            },
             // `/markx connect-wallet <url>` slash command
             {
               type: ApplicationCommandOptionType.Subcommand,
