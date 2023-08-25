@@ -151,10 +151,10 @@ app.get('/home', (req, res) => {
   res.send("Welcome home!");
 } )
 app.use("/markx", routers.markxAction);
-app.use("/view-emojis", routers.viewEmojis);
-app.use("/send-emoji", routers.sendEmoji);
-app.use("/connect-wallet", routers.connectWallet);
-app.use("/help", routers.help)
+// app.use("/view-emojis", routers.viewEmojis);
+// app.use("/send-emoji", routers.sendEmoji);
+// app.use("/connect-wallet", routers.connectWallet);
+// app.use("/help", routers.help)
 // app.use("/logout", routers.logout)
 // app.use("/hello-action", routers.helloAction);
 // app.use("/button-action", routers.buttonAction);

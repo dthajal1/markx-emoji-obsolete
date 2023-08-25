@@ -1,6 +1,5 @@
 
-import express from "express";
-import { SignatureVerifier } from "../helpers";
+
 import {
   APIInteraction,
   APIInteractionResponse,
@@ -11,9 +10,6 @@ import {
   InteractionType,
   MessageFlags,
 } from "@collabland/discord";
-import { MiniAppManifest } from "@collabland/models";
-import User from "../models/User";
-import { Product } from "./helpers/redirect";
 
 
 export async function handleBuyEmoji(interaction: APIInteraction) {

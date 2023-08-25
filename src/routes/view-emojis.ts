@@ -19,8 +19,13 @@ const router = express.Router();
 export async function handleViewEmojis(interaction: APIInteraction) {
   const user = await User.findOne({ discordId: interaction?.member?.user?.id }).lean();
   if (!user) {
-    console.log("user not found");
-    return null;
+    return {
+      type: InteractionResponseType.ChannelMessageWithSource,
+      data: {
+        flags: MessageFlags.Ephemeral,
+        content: `Your wallet isn't connected. Use /connect-wallet command to link your wallet for NFT access`,
+      },
+    };
   }
 
   const productsToDisplay = user.products;
@@ -39,7 +44,7 @@ export async function handleViewEmojis(interaction: APIInteraction) {
     type: InteractionResponseType.ChannelMessageWithSource,
     data: {
       flags: MessageFlags.Ephemeral,
-      content: ``,
+      content: `You currently don't own any Emoji NFTs. Use /buy-emoji command to buy/mint Emoji NFTs in the MarkX marketplace`,
     },
   }
 }

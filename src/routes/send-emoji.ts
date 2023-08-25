@@ -26,8 +26,6 @@ const s3 = new AWS.S3();
 const router = express.Router();
 
 export async function handleSendEmoji(interaction: APIInteraction, text?: string) {
-  // const text = getCommandOptionValue(interaction as APIChatInputApplicationCommandInteraction, "text");
-  // console.log(text);
   const id = interaction?.member?.user?.id;
   if (id && text) {
     storeData(id.toString(), text);
@@ -35,16 +33,14 @@ export async function handleSendEmoji(interaction: APIInteraction, text?: string
 
   const user = await User.findOne({ discordId: interaction?.member?.user?.id }).lean();
   if (!user) {
-    console.log("user not found");
-    return null;
+    return {
+      type: InteractionResponseType.ChannelMessageWithSource,
+      data: {
+        flags: MessageFlags.Ephemeral,
+        content: `Your wallet isn't connected. Use /connect-wallet command to link your wallet for NFT access`,
+      },
+    };
   }
-
-  // const accessToken = user.accessToken;
-  // if (!accessToken) {
-  //     console.log("access token not found");
-  //     return null;
-  // }
-  // console.log("retrieved accessToken");
 
   const productsToDisplay = user.products;
   // console.log("products: ",productsToDisplay);
@@ -58,6 +54,13 @@ export async function handleSendEmoji(interaction: APIInteraction, text?: string
         return handleMessageComponent(interaction, productsToDisplay);
       }
     }
+  }
+  return {
+    type: InteractionResponseType.ChannelMessageWithSource,
+    data: {
+      flags: MessageFlags.Ephemeral,
+      content: `You currently don't own any Emoji NFTs. Use /buy-emoji command to buy/mint Emoji NFTs in the MarkX marketplace`,
+    },
   }
 }
 

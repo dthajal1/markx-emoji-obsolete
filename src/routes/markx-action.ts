@@ -20,6 +20,8 @@ import { handleBuyEmoji } from "./buy-emoji";
 import { handleConnectWallet } from "./connect-wallet";
 import { handleViewEmojis } from "./view-emojis";
 import { handleSendEmoji } from "./send-emoji";
+import { handleHelp } from "./help";
+import MarkXLogo from "../../public/imgs/MarkX_Logo.svg"
 
 const router = express.Router();
 
@@ -36,7 +38,13 @@ async function handle(interaction: APIInteraction) {
         return handleSendEmoji(interaction);
       }
       default: {
-        return null
+        return {
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            flags: MessageFlags.Ephemeral,
+            content: `${interaction.data.custom_id} message component isn't been implemented`
+          }
+        }
       }
     }
   }
@@ -61,10 +69,17 @@ async function handle(interaction: APIInteraction) {
       const text = getSubCommandOptionValue(chatInputInteraction, 'send-emoji', 'text');
       return handleSendEmoji(interaction, text)
     }
+    case 'help': {
+      return handleHelp(interaction);
+    }
     default: {
-      console.log("Invalid subcommand");
-      return null
-      // throw new Error('Invalid subcommand');
+      return {
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          flags: MessageFlags.Ephemeral,
+          content: `${option?.name} subcommand is invalid`
+        }
+      }
     }
   }
 }
@@ -78,8 +93,15 @@ router.get("/metadata", function (req, res) {
       shortName: "markx-emoji-action",
       version: { name: "0.0.1" },
       website: "https://www.markx.io",
-      description: "[MarkX Emoji](https://www.markx.io/) gives the users the ability to use their owned NFTs and digital assets as stickers within the Discord platform.\n\n**To get started:**\n\n1. Install the MarkX Emoji mini-app from the [Collab.Land Marketplace](https://help.collab.land/marketplace/getting-started)\n\n2. Give mini-app the permission to read wallets you have connected with [Collab.Land](http://Collab.Land) with `/connect-wallet` command\n\n3. Run `/view-emojis` command to view all the emoji NFTs you own\n\n4. Share the emoji NFT you own as stickers with others using `/send-emoji`",
-      shortDescription: "This mini-app gives users the ability to use their owned Emoji NFTs as stickers within the Discord platform."
+      description: "[MarkX Emoji](https://www.markx.io/) gives users the ability to use their Emoji NFTs as stickers within the Discord servers. You can use your community brand or NFT IP to create emojis with the MarkX creator network and allow your community members to start communicating with it!\n\n**Get Free Custom Emojis for Your Community:**\n\n1. Follow Step 2 in Getting Started below: This step is required if you want the community to use your project emoji \n\n**To get started:**\n\n1. Install the MarkX Emoji mini-app from the [Collab.Land Marketplace](https://help.collab.land/marketplace/getting-started)\n\n2. [Create a Free Emoji](https://www.markx.io/create-emojis) collection for your IP (NFT or Brand) with the MarkX (Enter Promo Code: CollabLandFTW2023)\n\n3.  Buy/mint your community Emoji NFTs in the [MarkX marketplace (in testnet right now)](https://xyzport.com/browseProducts) using `/buy-emoji` command\n\n4. Give mini-app the permission to read wallets you have connected with [Collab.Land](http://Collab.Land) with `/connect-wallet` command\n\n5. Run `/view-emojis` command to view all the Emoji NFTs you own\n\n6. Share the Emoji NFT you own as stickers with others using `/post-emoji`",
+      shortDescription: "MarkX Emoji gives users the ability to use their Emoji NFTs as stickers within the Discord servers.",
+      icons: [
+        {
+          label: 'App icon',
+          src: MarkXLogo,
+          sizes: '512x512'
+        }
+      ]
     });
     const metadata: DiscordActionMetadata = {
       /**
@@ -114,14 +136,14 @@ router.get("/metadata", function (req, res) {
           },
           name: "markx",
           type: ApplicationCommandType.ChatInput,
-          description: "Use Emoji NFTs as stickers",
+          description: "Use Emoji NFTs as stickers in discord servers",
           options: [
             // `/markx buy-emoji <url>` slash command
             {
               type: ApplicationCommandOptionType.Subcommand,
               name: 'buy-emoji',
               description:
-                "Display link to buy/mint Emoji NFTs in the MarkX marketplace",
+                "Display a link to buy/mint Emoji NFTs in the MarkX marketplace",
               options: [],
             },
             // `/markx connect-wallet <url>` slash command
@@ -129,7 +151,7 @@ router.get("/metadata", function (req, res) {
               type: ApplicationCommandOptionType.Subcommand,
               name: 'connect-wallet',
               description:
-                "Connect your wallet to access emoji NFTs you own",
+                "Connect your wallet to access your Emoji NFTs",
               options: [],
             },
             // `/markx view-emojis <url>` slash command
@@ -137,15 +159,15 @@ router.get("/metadata", function (req, res) {
               type: ApplicationCommandOptionType.Subcommand,
               name: 'view-emojis',
               description:
-                "View all the emoji NFTs you own",
+                "View a list of Emoji NFTs that you own as stickers",
               options: [],
             },
-            // `/markx send-emoji <url>` slash command
+            // `/markx post-emoji <url>` slash command
             {
               type: ApplicationCommandOptionType.Subcommand,
-              name: 'send-emoji',
+              name: 'post-emoji',
               description:
-                "Send a specific sticker from your emoji NFTs collection",
+                "Send/Post a specific sticker from your collection in the chat.",
               options: [
                 {
                   type: ApplicationCommandOptionType.String,
@@ -154,6 +176,14 @@ router.get("/metadata", function (req, res) {
                   required: false,
                 },
               ],
+            },
+            // `/markx help <url>` slash command
+            {
+              type: ApplicationCommandOptionType.Subcommand,
+              name: 'help',
+              description:
+                "View all available commands",
+              options: [],
             },
           ],
         },
